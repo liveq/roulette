@@ -5,8 +5,7 @@
   max-height: 177.78vh; /* 9:16 비율 */
   aspect-ratio: 9 / 16;
   position: relative; /* floating-buttons의 absolute 기준점 */
-  background: linear-gradient(135deg, #FFE4E1 0%, #B2F7EF 50%, #FFB6C1 100%);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: #4d2a6c;
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -16,31 +15,193 @@
 /* 상단 브랜드 헤더 */
 .brand-header {
   width: 100%;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.95);
+  padding: 0 20px;
+  background: #4d2a6c;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 100;
 }
 
 .brand-logo {
-  max-height: 100px;
-  max-width: 90%;
+  max-height: 90px;
+  max-width: 100%;
   object-fit: contain;
+  /* filter: brightness(0) invert(1); */ /* 필터 제거 - 원본 로고 확인 */
 }
 
-/* 플로팅 버튼 그룹 - 룰렛 프레임 우측 하단 */
-.floating-buttons {
+/* 암호 입력 모달 */
+.password-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20000;
+  animation: fadeIn 0.3s ease;
+}
+
+.password-modal {
+  background: linear-gradient(180deg, #FFE4E1 0%, #B2F7EF 100%);
+  padding: 40px;
+  border-radius: 20px;
+  border: 3px solid rgba(255, 105, 180, 0.5);
+  box-shadow: 0 10px 40px rgba(255, 105, 180, 0.4);
+  min-width: 350px;
+  animation: scaleIn 0.3s ease;
+  text-align: center;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.password-modal h2 {
+  color: #FF69B4;
+  margin: 0 0 10px 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.password-modal p {
+  color: #666;
+  margin: 0 0 25px 0;
+  font-size: 16px;
+}
+
+.password-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid rgba(255, 105, 180, 0.3);
+  border-radius: 10px;
+  font-size: 18px;
+  margin-bottom: 25px;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 3px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: #FF69B4;
+  box-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
+}
+
+.password-modal-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.password-modal-buttons button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.password-cancel-button {
+  background: rgba(255, 105, 180, 0.2);
+  color: #FF69B4;
+  border: 2px solid #FF69B4;
+}
+
+.password-cancel-button:hover {
+  background: rgba(255, 105, 180, 0.3);
+  transform: translateY(-2px);
+}
+
+.password-submit-button {
+  background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+}
+
+.password-submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 105, 180, 0.6);
+}
+
+.password-submit-button:active,
+.password-cancel-button:active {
+  transform: translateY(0);
+}
+
+/* 플로팅 메뉴 컨테이너 - 룰렛 프레임 우측 하단 */
+.floating-menu {
   position: absolute;
-  bottom: 20px; /* 하단에서 20px */
-  right: 20px; /* 우측에서 20px */
+  bottom: 20px;
+  right: 20px;
   z-index: 10000;
   display: flex;
-  flex-direction: row; /* 가로 배치 */
+  flex-direction: row;
   gap: 15px;
   align-items: center;
+}
+
+/* 햄버거 버튼 */
+.hamburger-button {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  font-size: 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 20px rgba(255, 105, 180, 0.6);
+  flex-shrink: 0;
+  z-index: 10001;
+}
+
+.hamburger-button:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 6px 30px rgba(255, 105, 180, 0.8);
+  background: linear-gradient(135deg, #FF1493 0%, #C71585 100%);
+}
+
+.hamburger-button:active {
+  transform: scale(1.0);
+}
+
+/* 펼쳐진 플로팅 버튼 그룹 */
+.floating-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: center;
+  animation: slideInFromRight 0.3s ease;
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* 플로팅 버튼 공통 스타일 */
@@ -194,18 +355,24 @@
   }
 
   .brand-header {
-    padding: 15px;
+    padding: 0 15px;
   }
 
   .brand-logo {
-    max-height: 40px;
-    max-width: 200px;
+    max-height: 60px;
+    max-width: 95%;
   }
 
-  .floating-buttons {
+  .floating-menu {
     bottom: 15px;
     right: 15px;
     gap: 10px;
+  }
+
+  .hamburger-button {
+    width: 55px;
+    height: 55px;
+    font-size: 24px;
   }
 
   .floating-button {

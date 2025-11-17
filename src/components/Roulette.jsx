@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import './Roulette.css'
 
-function Roulette({ prizes, slotCount, slotConfig, onSpin, onSpinEnd, isSpinning }) {
+function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, isSpinning, spinDuration, useCustomProbability, customProbabilities }) {
   const [rotation, setRotation] = useState(0)
   const [winner, setWinner] = useState(null)
   const wheelRef = useRef(null)
@@ -36,8 +36,51 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onSpinEnd, isSpinning
 
   // 랜덤 칸 선택
   const getRandomPrize = () => {
-    const randomSlotIndex = Math.floor(Math.random() * slotCount)
-    const rank = slotConfig[randomSlotIndex]
+    let randomSlotIndex
+    let rank
+
+    if (useCustomProbability && Object.keys(customProbabilities).length > 0) {
+      // 커스텀 확률 사용: 가중치 기반 랜덤 선택
+      console.log('🎯 커스텀 확률 사용 중')
+
+      // 1. 확률에 따라 등수 선택
+      const random = Math.random() * 100
+      let cumulative = 0
+      let selectedRank = null
+
+      for (const prize of prizes) {
+        const probability = customProbabilities[prize.id] || 0
+        cumulative += probability
+        if (random <= cumulative) {
+          selectedRank = prize.id
+          break
+        }
+      }
+
+      if (!selectedRank) selectedRank = prizes[0].id
+
+      console.log('📊 확률 추첨 결과:', selectedRank + '등 (랜덤값:', random.toFixed(2), '%)')
+
+      // 2. 해당 등수의 슬롯 중 랜덤 선택
+      const slotsWithRank = slotConfig
+        .map((r, idx) => ({ rank: r, index: idx }))
+        .filter(slot => slot.rank === selectedRank)
+
+      if (slotsWithRank.length === 0) {
+        console.warn('⚠️ 해당 등수의 슬롯이 없음. 기본 랜덤 선택')
+        randomSlotIndex = Math.floor(Math.random() * slotCount)
+        rank = slotConfig[randomSlotIndex]
+      } else {
+        const randomSlot = slotsWithRank[Math.floor(Math.random() * slotsWithRank.length)]
+        randomSlotIndex = randomSlot.index
+        rank = selectedRank
+      }
+    } else {
+      // 기본: 균등 랜덤 선택
+      randomSlotIndex = Math.floor(Math.random() * slotCount)
+      rank = slotConfig[randomSlotIndex]
+    }
+
     const prize = prizes.find(p => p.id === rank)
 
     console.log('🎲 랜덤 칸 선택:', randomSlotIndex + 1, '/', slotCount)
@@ -48,16 +91,27 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onSpinEnd, isSpinning
 
   const handleSpinClick = () => {
     if (isSpinning) {
-      // 회전 중이면 즉시 정지
+      // 회전 중이면 즉시 정지 (애니메이션 중단)
       if (spinTimeoutRef.current) {
         clearTimeout(spinTimeoutRef.current)
         spinTimeoutRef.current = null
       }
 
+      // 회전 음악 중지
+      onStop()
+
       // 즉시 당첨 결과 표시
       if (currentWinnerRef.current) {
-        setWinner(currentWinnerRef.current)
-        onSpinEnd(currentWinnerRef.current)
+        // 회전 애니메이션을 즉시 중단
+        if (wheelRef.current) {
+          wheelRef.current.style.transition = 'none'
+        }
+
+        // 0.5초 후 모달 표시 (사용자가 결과를 볼 수 있도록)
+        setTimeout(() => {
+          setWinner(currentWinnerRef.current)
+          onSpinEnd(currentWinnerRef.current)
+        }, 500)
       }
       return
     }
@@ -67,6 +121,12 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onSpinEnd, isSpinning
     console.log('🎰 당첨 상품:', winningPrize.name)
     console.log('📍 당첨 칸:', winningPrize.slotIndex + 1)
     setWinner(null)
+
+    // transition 설정 (동적 시간 적용)
+    if (wheelRef.current) {
+      wheelRef.current.style.transition = `transform ${spinDuration}s cubic-bezier(0.17, 0.67, 0.12, 0.99)`
+    }
+
     onSpin()
 
     // 동적 칸 수에 따른 각도 계산
@@ -123,11 +183,15 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onSpinEnd, isSpinning
         console.log('✅ 일치! 슬롯', (winningPrize.slotIndex + 1), '번이 정확히 12시 방향에 있습니다')
       }
 
-      setWinner(winningPrize)
-      onSpinEnd(winningPrize)
+      // 0.5초 후 모달 표시 (사용자가 결과를 볼 수 있도록)
+      setTimeout(() => {
+        setWinner(winningPrize)
+        onSpinEnd(winningPrize)
+        currentWinnerRef.current = null
+      }, 500)
+
       spinTimeoutRef.current = null
-      currentWinnerRef.current = null
-    }, 5000) // 5초 회전
+    }, spinDuration * 1000) // 설정된 시간만큼 회전
   }
 
   // 모달 닫기
@@ -137,7 +201,7 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onSpinEnd, isSpinning
 
   return (
     <div className="roulette-container">
-      <div className="roulette-wheel-wrapper">
+      <div className="roulette-wheel-wrapper" onClick={handleSpinClick} style={{ cursor: 'pointer' }}>
         {/* 고정 포인터 */}
         <div className="pointer"></div>
 

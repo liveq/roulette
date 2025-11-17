@@ -22,6 +22,12 @@ function App() {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   const [volume, setVolume] = useState(50) // 초기 볼륨 50%
   const [isVolumeOpen, setIsVolumeOpen] = useState(false) // 볼륨 조절 펼침 상태
+  const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false) // 햄버거 메뉴 펼침 상태
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false) // 암호 모달 상태
+  const [passwordInput, setPasswordInput] = useState('') // 암호 입력값
+  const [spinDuration, setSpinDuration] = useState(5) // 룰렛 회전 시간 (초)
+  const [useCustomProbability, setUseCustomProbability] = useState(false) // 커스텀 확률 사용 여부
+  const [customProbabilities, setCustomProbabilities] = useState({}) // 각 등수별 커스텀 확률
 
   const bgmAudioRef = useRef(null)
   const bgmPlaylistRef = useRef([])
@@ -91,6 +97,7 @@ function App() {
     document.addEventListener('touchstart', startOnInteraction, { once: true })
 
     spinningAudioRef.current = new Audio(`${import.meta.env.BASE_URL}audio/spinning.mp3`)
+    spinningAudioRef.current.loop = true // 룰렛 시간만큼 루프 재생
     prize1AudioRef.current = new Audio(`${import.meta.env.BASE_URL}audio/prize1.mp3`)
     prize2AudioRef.current = new Audio(`${import.meta.env.BASE_URL}audio/prize2.mp3`)
     prize3AudioRef.current = new Audio(`${import.meta.env.BASE_URL}audio/prize3.mp3`)
@@ -148,6 +155,11 @@ function App() {
     }
   }
 
+  const handleStop = () => {
+    // 수동 멈춤 시 회전 음악 중지
+    spinningAudioRef.current?.pause()
+  }
+
   const handleSpinEnd = (winningPrize) => {
     setIsSpinning(false)
 
@@ -167,6 +179,22 @@ function App() {
     if (prizeAudio) {
       prizeAudio.currentTime = 0
       prizeAudio.play().catch(() => {})
+    }
+  }
+
+  const handleSettingsClick = () => {
+    setPasswordInput('')
+    setIsPasswordModalOpen(true)
+  }
+
+  const handlePasswordSubmit = () => {
+    if (passwordInput === '4444') {
+      setIsPasswordModalOpen(false)
+      setPasswordInput('')
+      setIsMenuOpen(true)
+    } else {
+      alert('암호가 틀렸습니다.')
+      setPasswordInput('')
     }
   }
 
@@ -192,7 +220,7 @@ function App() {
         {/* 상단 코랄리에 로고 */}
         <header className="brand-header">
         <img
-          src={`${import.meta.env.BASE_URL}images/logo-banner.jpg`}
+          src={`${import.meta.env.BASE_URL}images/new-logo.jpg`}
           alt="CORALIER"
           className="brand-logo"
           onError={(e) => {
@@ -210,6 +238,12 @@ function App() {
           setSlotCount={setSlotCount}
           slotConfig={slotConfig}
           setSlotConfig={setSlotConfig}
+          spinDuration={spinDuration}
+          setSpinDuration={setSpinDuration}
+          useCustomProbability={useCustomProbability}
+          setUseCustomProbability={setUseCustomProbability}
+          customProbabilities={customProbabilities}
+          setCustomProbabilities={setCustomProbabilities}
         />
 
         <Roulette
@@ -217,53 +251,114 @@ function App() {
           slotCount={slotCount}
           slotConfig={slotConfig}
           onSpin={handleSpin}
+          onStop={handleStop}
           onSpinEnd={handleSpinEnd}
           isSpinning={isSpinning}
+          spinDuration={spinDuration}
+          useCustomProbability={useCustomProbability}
+          customProbabilities={customProbabilities}
         />
 
-        {/* 플로팅 버튼 그룹 - 메인 영역 우측 하단 */}
-        <div className="floating-buttons">
-          {/* 설정 버튼 */}
-          <button
-            className="floating-button settings-button"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="설정"
-          >
-            ⚙️
-          </button>
-
-          {/* 음악 재생/정지 버튼 */}
-          <button
-            className="floating-button music-button"
-            onClick={toggleMusic}
-            aria-label={isMusicPlaying ? '음악 정지' : '음악 재생'}
-          >
-            {isMusicPlaying ? '⏸️' : '▶️'}
-          </button>
-
-          {/* 볼륨 버튼 */}
-          <button
-            className="floating-button volume-button"
-            onClick={() => setIsVolumeOpen(!isVolumeOpen)}
-            aria-label="볼륨 조절"
-          >
-            🔊
-          </button>
-
-          {/* 볼륨 슬라이더 (펼쳐질 때만 표시) */}
-          {isVolumeOpen && (
-            <div className="volume-control">
-              <div className="volume-label">{volume}%</div>
+        {/* 암호 입력 모달 */}
+        {isPasswordModalOpen && (
+          <div className="password-modal-overlay" onClick={() => {
+            setIsPasswordModalOpen(false)
+            setPasswordInput('')
+          }}>
+            <div className="password-modal" onClick={(e) => e.stopPropagation()}>
+              <h2>🔐 설정 메뉴</h2>
+              <p>암호를 입력하세요</p>
               <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={(e) => setVolume(Number(e.target.value))}
-                className="volume-slider"
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handlePasswordSubmit()
+                  }
+                }}
+                placeholder="암호 입력"
+                className="password-input"
+                autoFocus
               />
+              <div className="password-modal-buttons">
+                <button
+                  className="password-cancel-button"
+                  onClick={() => {
+                    setIsPasswordModalOpen(false)
+                    setPasswordInput('')
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  className="password-submit-button"
+                  onClick={handlePasswordSubmit}
+                >
+                  확인
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 플로팅 메뉴 - 햄버거 버튼 */}
+        <div className="floating-menu">
+          {/* 펼쳐진 버튼들 */}
+          {isFloatingMenuOpen && (
+            <div className="floating-buttons">
+              {/* 설정 버튼 */}
+              <button
+                className="floating-button settings-button"
+                onClick={handleSettingsClick}
+                aria-label="설정"
+              >
+                ⚙️
+              </button>
+
+              {/* 음악 재생/정지 버튼 */}
+              <button
+                className="floating-button music-button"
+                onClick={toggleMusic}
+                aria-label={isMusicPlaying ? '음악 정지' : '음악 재생'}
+              >
+                {isMusicPlaying ? '⏸️' : '▶️'}
+              </button>
+
+              {/* 볼륨 버튼 */}
+              <button
+                className="floating-button volume-button"
+                onClick={() => setIsVolumeOpen(!isVolumeOpen)}
+                aria-label="볼륨 조절"
+              >
+                🔊
+              </button>
+
+              {/* 볼륨 슬라이더 (펼쳐질 때만 표시) */}
+              {isVolumeOpen && (
+                <div className="volume-control">
+                  <div className="volume-label">{volume}%</div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    onChange={(e) => setVolume(Number(e.target.value))}
+                    className="volume-slider"
+                  />
+                </div>
+              )}
             </div>
           )}
+
+          {/* 햄버거 버튼 */}
+          <button
+            className="hamburger-button"
+            onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
+            aria-label={isFloatingMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+          >
+            {isFloatingMenuOpen ? '✕' : '☰'}
+          </button>
         </div>
       </div>
     </>
