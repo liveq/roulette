@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/test/', // GitHub Pages용 base path
+  base: '/', // Cloudflare Pages용 루트 경로
 })
