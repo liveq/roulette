@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import './Roulette.css'
 
-function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, isSpinning, spinDuration, useCustomProbability, customProbabilities }) {
+function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, isSpinning, spinDuration, useCustomProbability, customProbabilities, resultModalScale }) {
   const [rotation, setRotation] = useState(0)
   const [winner, setWinner] = useState(null)
   const wheelRef = useRef(null)
@@ -195,7 +195,8 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, is
   }
 
   // 모달 닫기
-  const handleCloseModal = () => {
+  const handleCloseModal = (e) => {
+    e.stopPropagation()
     setWinner(null)
   }
 
@@ -312,6 +313,43 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, is
             />
           </svg>
         </div>
+
+        {/* 결과 표시 */}
+        {winner && (
+          <div className="result-overlay" onClick={handleCloseModal}>
+            <div
+              className="result-card"
+              style={{ transform: `scale(${resultModalScale / 100})`, transition: 'transform 0.2s ease' }}
+            >
+              <h2>🎉 축하합니다! 🎉</h2>
+
+              {/* 당첨 상품 이미지 */}
+              <div className="prize-image-container">
+                <img
+                  src={`${import.meta.env.BASE_URL}images/prizes/prize-${winner.id}.png`}
+                  alt={winner.name}
+                  className="prize-image"
+                  onError={(e) => {
+                    console.error('❌ 이미지 로드 실패:', e.target.src)
+                    e.target.style.display = 'none'
+                  }}
+                  onLoad={(e) => {
+                    console.log('✅ 이미지 로드 성공:', e.target.src)
+                  }}
+                />
+              </div>
+
+              {/* 상품명 */}
+              <div className="winner-name">
+                {winner.name}
+              </div>
+
+              <button className="close-modal-button" onClick={handleCloseModal}>
+                닫기
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 스핀 버튼 */}
@@ -321,40 +359,6 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, is
       >
         {isSpinning ? '멈춤' : '룰렛 돌리기'}
       </button>
-
-      {/* 결과 표시 */}
-      {winner && (
-        <div className="result-overlay" onClick={handleCloseModal}>
-          <div className="result-card">
-            <h2>🎉 축하합니다! 🎉</h2>
-
-            {/* 당첨 상품 이미지 */}
-            <div className="prize-image-container">
-              <img
-                src={`${import.meta.env.BASE_URL}images/prizes/prize-${winner.id}.png`}
-                alt={winner.name}
-                className="prize-image"
-                onError={(e) => {
-                  console.error('❌ 이미지 로드 실패:', e.target.src)
-                  e.target.style.display = 'none'
-                }}
-                onLoad={(e) => {
-                  console.log('✅ 이미지 로드 성공:', e.target.src)
-                }}
-              />
-            </div>
-
-            {/* 상품명 */}
-            <div className="winner-name">
-              {winner.name}
-            </div>
-
-            <button className="close-modal-button" onClick={handleCloseModal}>
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

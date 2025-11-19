@@ -317,12 +317,33 @@ function SettingsMenu({
                 <div className="prob-total">
                   합계: {Object.values(tempCustomProb).reduce((sum, val) => sum + (Number(val) || 0), 0).toFixed(1)}%
                 </div>
-                <button
-                  className="reset-prob-button"
-                  onClick={() => setTempCustomProb(getSlotBasedProbabilities())}
-                >
-                  현재 배치로 조정
-                </button>
+                <div className="prob-buttons">
+                  <button
+                    className="preset-prob-button"
+                    onClick={() => {
+                      // 프리셋: 1등 1%, 2등 19%, 3등 80%
+                      const preset = {
+                        1: 1,
+                        2: 19,
+                        3: 80
+                      }
+                      // 현재 상품 수에 맞게 조정
+                      const newProb = {}
+                      tempPrizes.forEach(prize => {
+                        newProb[prize.id] = preset[prize.id] || 0
+                      })
+                      setTempCustomProb(newProb)
+                    }}
+                  >
+                    프리셋 적용
+                  </button>
+                  <button
+                    className="reset-prob-button"
+                    onClick={() => setTempCustomProb(getSlotBasedProbabilities())}
+                  >
+                    현재 배치로 조정 (디폴트)
+                  </button>
+                </div>
               </div>
             )}
           </div>

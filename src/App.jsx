@@ -28,6 +28,34 @@ function App() {
   const [spinDuration, setSpinDuration] = useState(5) // 룰렛 회전 시간 (초)
   const [useCustomProbability, setUseCustomProbability] = useState(false) // 커스텀 확률 사용 여부
   const [customProbabilities, setCustomProbabilities] = useState({}) // 각 등수별 커스텀 확률
+  const [isVerticalMode, setIsVerticalMode] = useState(false) // 세로 모드 토글
+  const [isGalleryControlOpen, setIsGalleryControlOpen] = useState(false) // 갤러리 크기 조절 패널 상태
+
+  // 갤러리 크기 조절 (localStorage에서 불러오기, 기본값 100%)
+  const [topGalleryScale, setTopGalleryScale] = useState(() => {
+    const saved = localStorage.getItem('topGalleryScale')
+    return saved ? Number(saved) : 100
+  })
+  const [bottomGalleryScale, setBottomGalleryScale] = useState(() => {
+    const saved = localStorage.getItem('bottomGalleryScale')
+    return saved ? Number(saved) : 100
+  })
+  const [leftGalleryScale, setLeftGalleryScale] = useState(() => {
+    const saved = localStorage.getItem('leftGalleryScale')
+    return saved ? Number(saved) : 100
+  })
+  const [rightGalleryScale, setRightGalleryScale] = useState(() => {
+    const saved = localStorage.getItem('rightGalleryScale')
+    return saved ? Number(saved) : 100
+  })
+  const [rouletteScale, setRouletteScale] = useState(() => {
+    const saved = localStorage.getItem('rouletteScale')
+    return saved ? Number(saved) : 100
+  })
+  const [resultModalScale, setResultModalScale] = useState(() => {
+    const saved = localStorage.getItem('resultModalScale')
+    return saved ? Number(saved) : 100
+  })
 
   const bgmAudioRef = useRef(null)
   const bgmPlaylistRef = useRef([])
@@ -118,6 +146,48 @@ function App() {
     }
   }, [volume])
 
+  // 모드 전환 시 햄버거 메뉴 자동 닫기
+  useEffect(() => {
+    setIsFloatingMenuOpen(false)
+  }, [isVerticalMode])
+
+  // 설정 메뉴 열릴 때 배경 스크롤 방지
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMenuOpen])
+
+  // 갤러리 크기 변경 시 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem('topGalleryScale', topGalleryScale.toString())
+  }, [topGalleryScale])
+
+  useEffect(() => {
+    localStorage.setItem('bottomGalleryScale', bottomGalleryScale.toString())
+  }, [bottomGalleryScale])
+
+  useEffect(() => {
+    localStorage.setItem('leftGalleryScale', leftGalleryScale.toString())
+  }, [leftGalleryScale])
+
+  useEffect(() => {
+    localStorage.setItem('rightGalleryScale', rightGalleryScale.toString())
+  }, [rightGalleryScale])
+
+  useEffect(() => {
+    localStorage.setItem('rouletteScale', rouletteScale.toString())
+  }, [rouletteScale])
+
+  useEffect(() => {
+    localStorage.setItem('resultModalScale', resultModalScale.toString())
+  }, [resultModalScale])
+
   const playAudio = (audioRef) => {
     if (currentAudio) {
       currentAudio.pause()
@@ -141,6 +211,7 @@ function App() {
       })
       setIsMusicPlaying(true)
     }
+    setIsFloatingMenuOpen(false) // 일시정지 버튼 클릭 시 햄버거 메뉴 닫기
   }
 
   const handleSpin = () => {
@@ -192,31 +263,44 @@ function App() {
       setIsPasswordModalOpen(false)
       setPasswordInput('')
       setIsMenuOpen(true)
+      setIsFloatingMenuOpen(false) // 설정 메뉴 열릴 때 햄버거 메뉴 닫기
     } else {
       alert('암호가 틀렸습니다.')
       setPasswordInput('')
     }
   }
 
+  // 모든 갤러리, 룰렛, 당첨모달 크기를 기본값(100%)으로 리셋
+  const handleResetGalleryScale = () => {
+    setTopGalleryScale(100)
+    setBottomGalleryScale(100)
+    setLeftGalleryScale(100)
+    setRightGalleryScale(100)
+    setRouletteScale(100)
+    setResultModalScale(100)
+  }
+
   return (
     <>
       {/* 좌측 제품 갤러리 */}
-      <div className="product-gallery-left">
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D13984.jpg" alt="Coralier Product 1" />
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D13952.jpg" alt="Coralier Product 2" />
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D13961.jpg" alt="Coralier Product 3" />
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D14135.jpg" alt="Coralier Product 4" />
+      <div className="product-gallery-left" style={{ width: `calc((100vw - min(100vh * 9 / 16, 100vw)) / 2 * ${leftGalleryScale / 100})`, height: `${leftGalleryScale}vh`, paddingTop: `calc(10vh * ${leftGalleryScale / 100})`, paddingBottom: `calc(10vh * ${leftGalleryScale / 100})`, top: `calc(50% + (60px * (${rouletteScale / 100} - 1)))`, transform: 'translateY(-50%)', transition: 'all 0.2s ease' }}>
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-1.jpg`} alt="Coralier Product 1" />
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-2.jpg`} alt="Coralier Product 2" />
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-3.jpg`} alt="Coralier Product 3" />
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-4.jpg`} alt="Coralier Product 4" />
       </div>
 
       {/* 우측 제품 갤러리 */}
-      <div className="product-gallery-right">
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D14408.jpg" alt="Coralier Product 5" />
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D14075.jpg" alt="Coralier Product 6" />
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D15079.jpg" alt="Coralier Product 7" />
-        <img src="https://coralier.com/wp-content/uploads/2023/05/0412-%EC%BC%90%ED%85%8D14043.jpg" alt="Coralier Product 8" />
+      <div className="product-gallery-right" style={{ width: `calc((100vw - min(100vh * 9 / 16, 100vw)) / 2 * ${rightGalleryScale / 100})`, height: `${rightGalleryScale}vh`, paddingTop: `calc(10vh * ${rightGalleryScale / 100})`, paddingBottom: `calc(10vh * ${rightGalleryScale / 100})`, top: `calc(50% + (60px * (${rouletteScale / 100} - 1)))`, transform: 'translateY(-50%)', transition: 'all 0.2s ease' }}>
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-5.jpg`} alt="Coralier Product 5" />
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-6.jpg`} alt="Coralier Product 6" />
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-7.jpg`} alt="Coralier Product 7" />
+        <img src={`${import.meta.env.BASE_URL}images/gallery/horizontal-8.jpg`} alt="Coralier Product 8" />
       </div>
 
-      <div className="app">
+      <div
+        className={`app ${isVerticalMode ? 'vertical-mode' : ''}`}
+      >
         {/* 상단 코랄리에 로고 */}
         <header className="brand-header">
         <img
@@ -228,6 +312,17 @@ function App() {
           }}
         />
       </header>
+
+        {/* 세로 모드용 상단 갤러리 */}
+        <div className="gallery-top" style={{ transform: `scale(${topGalleryScale / 100})`, transformOrigin: 'center top', marginBottom: `calc(-200px * (1 - ${topGalleryScale / 100}))`, transition: 'all 0.2s ease' }}>
+          <div className="gallery-top-left">
+            <img src={`${import.meta.env.BASE_URL}images/vertical/image4_upper_left_matrix_1.jpg`} alt="Product 1" className="gallery-image-horizontal" />
+            <img src={`${import.meta.env.BASE_URL}images/vertical/image3_upper_left_matrix_2.jpg`} alt="Product 2" className="gallery-image-horizontal" />
+          </div>
+          <div className="gallery-top-right">
+            <img src={`${import.meta.env.BASE_URL}images/vertical/image1_upper_right.jpg`} alt="Product 3" className="gallery-image-vertical" />
+          </div>
+        </div>
 
         <SettingsMenu
           isOpen={isMenuOpen}
@@ -246,18 +341,41 @@ function App() {
           setCustomProbabilities={setCustomProbabilities}
         />
 
-        <Roulette
-          prizes={prizes}
-          slotCount={slotCount}
-          slotConfig={slotConfig}
-          onSpin={handleSpin}
-          onStop={handleStop}
-          onSpinEnd={handleSpinEnd}
-          isSpinning={isSpinning}
-          spinDuration={spinDuration}
-          useCustomProbability={useCustomProbability}
-          customProbabilities={customProbabilities}
-        />
+        <div style={{
+          transform: `scale(${rouletteScale / 100})`,
+          marginTop: isVerticalMode
+            ? `calc((450px * (${rouletteScale / 100} - 1) / 2) + (60px * (${rouletteScale / 100} - 1)) - (180px * (1 - ${topGalleryScale / 100})))`
+            : `calc((450px * (${rouletteScale / 100} - 1) / 2) + (60px * (${rouletteScale / 100} - 1)))`,
+          marginBottom: isVerticalMode
+            ? `calc((450px * (${rouletteScale / 100} - 1) / 2) - (180px * (1 - ${bottomGalleryScale / 100})))`
+            : `calc(450px * (${rouletteScale / 100} - 1) / 2)`,
+          transition: 'all 0.2s ease'
+        }}>
+          <Roulette
+            prizes={prizes}
+            slotCount={slotCount}
+            slotConfig={slotConfig}
+            onSpin={handleSpin}
+            onStop={handleStop}
+            onSpinEnd={handleSpinEnd}
+            isSpinning={isSpinning}
+            spinDuration={spinDuration}
+            useCustomProbability={useCustomProbability}
+            customProbabilities={customProbabilities}
+            resultModalScale={resultModalScale}
+          />
+        </div>
+
+        {/* 세로 모드용 하단 갤러리 */}
+        <div className="gallery-bottom" style={{ transform: `scale(${bottomGalleryScale / 100})`, transformOrigin: 'center bottom', marginTop: `calc(-200px * (1 - ${bottomGalleryScale / 100}))`, transition: 'all 0.2s ease' }}>
+          <div className="gallery-bottom-left">
+            <img src={`${import.meta.env.BASE_URL}images/vertical/image_bottom_left.jpg`} alt="Product 4" className="gallery-image-vertical" />
+          </div>
+          <div className="gallery-bottom-right">
+            <img src={`${import.meta.env.BASE_URL}images/vertical/image2_bottom_right_matrix_1.jpg`} alt="Product 5" className="gallery-image-horizontal" />
+            <img src={`${import.meta.env.BASE_URL}images/vertical/image5_bottom_right_matrix_2.jpg`} alt="Product 6" className="gallery-image-horizontal" />
+          </div>
+        </div>
 
         {/* 암호 입력 모달 */}
         {isPasswordModalOpen && (
@@ -328,27 +446,191 @@ function App() {
               {/* 볼륨 버튼 */}
               <button
                 className="floating-button volume-button"
-                onClick={() => setIsVolumeOpen(!isVolumeOpen)}
+                onClick={() => {
+                  const newState = !isVolumeOpen
+                  setIsVolumeOpen(newState)
+                  if (newState) { // 볼륨 게이지가 열릴 때만 햄버거 메뉴 닫기
+                    setIsFloatingMenuOpen(false)
+                  }
+                }}
                 aria-label="볼륨 조절"
               >
                 🔊
               </button>
 
-              {/* 볼륨 슬라이더 (펼쳐질 때만 표시) */}
-              {isVolumeOpen && (
-                <div className="volume-control">
-                  <div className="volume-label">{volume}%</div>
+              {/* 가로/세로 모드 전환 버튼 */}
+              <button
+                className="floating-button orientation-button"
+                onClick={() => setIsVerticalMode(!isVerticalMode)}
+                aria-label={isVerticalMode ? '가로 모드로 전환' : '세로 모드로 전환'}
+              >
+                {isVerticalMode ? '↔️' : '↕️'}
+              </button>
+
+              {/* 갤러리 크기 조절 버튼 */}
+              <button
+                className="floating-button gallery-control-button"
+                onClick={() => {
+                  const newState = !isGalleryControlOpen
+                  setIsGalleryControlOpen(newState)
+                  if (newState) { // 갤러리 창이 열릴 때만 햄버거 메뉴 닫기
+                    setIsFloatingMenuOpen(false)
+                  }
+                }}
+                aria-label="갤러리 크기 조절"
+              >
+                🖼️
+              </button>
+
+            </div>
+          )}
+
+          {/* 볼륨 조절 게이지 (햄버거 메뉴와 독립) */}
+          {isVolumeOpen && (
+            <>
+              {/* 오버레이 */}
+              <div
+                className="volume-overlay"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsVolumeOpen(false)
+                }}
+              />
+              {/* 볼륨 슬라이더 */}
+              <div className="volume-control" onClick={(e) => e.stopPropagation()}>
+                <div className="volume-label">{volume}%</div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={(e) => setVolume(Number(e.target.value))}
+                  className="volume-slider"
+                />
+              </div>
+            </>
+          )}
+
+          {/* 갤러리 크기 조절 패널 (햄버거 메뉴와 독립) */}
+          {isGalleryControlOpen && (
+            <>
+              {/* 오버레이 */}
+              <div
+                className="gallery-control-overlay"
+                onClick={() => setIsGalleryControlOpen(false)}
+              />
+
+              {/* 패널 */}
+              <div className="gallery-control-panel" onClick={(e) => e.stopPropagation()}>
+                <div className="gallery-control-header">
+                  갤러리 크기
+                  <button
+                    className="gallery-control-close"
+                    onClick={() => setIsGalleryControlOpen(false)}
+                    aria-label="닫기"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* 上 (상단 갤러리 - 세로모드만) */}
+                {isVerticalMode && (
+                  <div className="gallery-slider-row">
+                    <label>上</label>
+                    <input
+                      type="range"
+                      min="50"
+                      max="200"
+                      value={topGalleryScale}
+                      onChange={(e) => setTopGalleryScale(Number(e.target.value))}
+                      className="gallery-slider"
+                    />
+                    <span className="gallery-scale-value">{topGalleryScale}%</span>
+                  </div>
+                )}
+
+                {/* 下 (하단 갤러리 - 세로모드만) */}
+                {isVerticalMode && (
+                  <div className="gallery-slider-row">
+                    <label>下</label>
+                    <input
+                      type="range"
+                      min="50"
+                      max="200"
+                      value={bottomGalleryScale}
+                      onChange={(e) => setBottomGalleryScale(Number(e.target.value))}
+                      className="gallery-slider"
+                    />
+                    <span className="gallery-scale-value">{bottomGalleryScale}%</span>
+                  </div>
+                )}
+
+                {/* 左 (좌측 갤러리 - 가로모드만) */}
+                {!isVerticalMode && (
+                  <div className="gallery-slider-row">
+                    <label>左</label>
+                    <input
+                      type="range"
+                      min="50"
+                      max="200"
+                      value={leftGalleryScale}
+                      onChange={(e) => setLeftGalleryScale(Number(e.target.value))}
+                      className="gallery-slider"
+                    />
+                    <span className="gallery-scale-value">{leftGalleryScale}%</span>
+                  </div>
+                )}
+
+                {/* 右 (우측 갤러리 - 가로모드만) */}
+                {!isVerticalMode && (
+                  <div className="gallery-slider-row">
+                    <label>右</label>
+                    <input
+                      type="range"
+                      min="50"
+                      max="200"
+                      value={rightGalleryScale}
+                      onChange={(e) => setRightGalleryScale(Number(e.target.value))}
+                      className="gallery-slider"
+                    />
+                    <span className="gallery-scale-value">{rightGalleryScale}%</span>
+                  </div>
+                )}
+
+                {/* 룰렛 (항상 활성화) */}
+                <div className="gallery-slider-row">
+                  <label>룰렛</label>
                   <input
                     type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={(e) => setVolume(Number(e.target.value))}
-                    className="volume-slider"
+                    min="50"
+                    max="200"
+                    value={rouletteScale}
+                    onChange={(e) => setRouletteScale(Number(e.target.value))}
+                    className="gallery-slider"
                   />
+                  <span className="gallery-scale-value">{rouletteScale}%</span>
                 </div>
-              )}
-            </div>
+
+                {/* 당첨모달 (항상 활성화) */}
+                <div className="gallery-slider-row">
+                  <label>당첨모달</label>
+                  <input
+                    type="range"
+                    min="10"
+                    max="200"
+                    value={resultModalScale}
+                    onChange={(e) => setResultModalScale(Number(e.target.value))}
+                    className="gallery-slider"
+                  />
+                  <span className="gallery-scale-value">{resultModalScale}%</span>
+                </div>
+
+                {/* 디폴트로 복원 버튼 */}
+                <button className="gallery-reset-button" onClick={handleResetGalleryScale}>
+                  디폴트로 복원
+                </button>
+              </div>
+            </>
           )}
 
           {/* 햄버거 버튼 */}

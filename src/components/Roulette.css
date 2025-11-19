@@ -99,14 +99,14 @@
 /* 결과 오버레이 */
 .result-overlay {
   position: absolute;
-  top: 20px; /* 헤더 영역과 거의 겹치게 상단 배치 */
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: transparent;
   display: flex;
   justify-content: center;
-  align-items: center; /* 헤더 아래 영역의 정중앙 */
+  align-items: center; /* 룰렛 원의 정중앙에 배치 */
   z-index: 1000;
   animation: fadeIn 0.3s ease;
 }

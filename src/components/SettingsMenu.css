@@ -7,7 +7,7 @@
   background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: flex-end;
-  z-index: 2000;
+  z-index: 10100;
   animation: fadeIn 0.3s ease;
 }
 
@@ -492,11 +492,16 @@
   color: #333;
 }
 
-.reset-prob-button {
-  width: 100%;
+.prob-buttons {
+  display: flex;
+  gap: 10px;
   margin-top: 10px;
+}
+
+.preset-prob-button,
+.reset-prob-button {
+  flex: 1;
   padding: 12px;
-  background: linear-gradient(135deg, #FF69B4 0%, #7FFFD4 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -504,6 +509,19 @@
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+.preset-prob-button {
+  background: linear-gradient(135deg, #7FFFD4 0%, #4ECDC4 100%);
+}
+
+.preset-prob-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(127, 255, 212, 0.4);
+}
+
+.reset-prob-button {
+  background: linear-gradient(135deg, #FF69B4 0%, #7FFFD4 100%);
 }
 
 .reset-prob-button:hover {

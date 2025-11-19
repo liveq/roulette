@@ -13,6 +13,16 @@ body {
   overflow: hidden;
 }
 
+/* 세로 모드일 때만 스크롤 허용 */
+body:has(.app.vertical-mode) {
+  overflow: auto;
+}
+
+body:has(.app.vertical-mode) #root {
+  height: auto;
+  min-height: 100vh;
+}
+
 #root {
   width: 100vw;
   height: 100vh;
