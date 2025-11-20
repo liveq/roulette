@@ -98,7 +98,7 @@
 
 /* 결과 오버레이 */
 .result-overlay {
-  position: absolute;
+  position: fixed !important;
   top: 0;
   left: 0;
   right: 0;
@@ -106,8 +106,8 @@
   background: transparent;
   display: flex;
   justify-content: center;
-  align-items: center; /* 룰렛 원의 정중앙에 배치 */
-  z-index: 1000;
+  align-items: center; /* 화면 중앙에 배치 */
+  z-index: 99999 !important;
   animation: fadeIn 0.3s ease;
 }
 
@@ -184,6 +184,18 @@
   font-size: 24px;
   color: #555;
 }
+
+.winner-name {
+  font-size: 48px;
+  font-weight: bold;
+  color: #FF1493;
+  padding: 20px 30px;
+  margin: 20px 0;
+  background: linear-gradient(135deg, #FFE4E1 0%, #FFB6C1 100%);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
+}
+
 .close-modal-button {
   margin-top: 30px;
   padding: 15px 40px;
@@ -239,7 +251,7 @@
   }
 
   .winner-name {
-    font-size: 22px;
+    font-size: 33px;
     padding: 12px 20px;
   }
 

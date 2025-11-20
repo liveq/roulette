@@ -342,13 +342,13 @@ function App() {
         />
 
         <div style={{
-          transform: `scale(${rouletteScale / 100})`,
+          transform: `scale(${(rouletteScale / 100) * 1.35})`,
           marginTop: isVerticalMode
-            ? `calc((450px * (${rouletteScale / 100} - 1) / 2) + (60px * (${rouletteScale / 100} - 1)) - (180px * (1 - ${topGalleryScale / 100})))`
-            : `calc((450px * (${rouletteScale / 100} - 1) / 2) + (60px * (${rouletteScale / 100} - 1)))`,
+            ? `calc((450px * (${(rouletteScale / 100) * 1.35} - 1) / 2) + (60px * (${(rouletteScale / 100) * 1.35} - 1)) - (180px * (1 - ${topGalleryScale / 100})))`
+            : `calc((450px * (${(rouletteScale / 100) * 1.35} - 1) / 2) + (60px * (${(rouletteScale / 100) * 1.35} - 1)))`,
           marginBottom: isVerticalMode
-            ? `calc((450px * (${rouletteScale / 100} - 1) / 2) - (180px * (1 - ${bottomGalleryScale / 100})))`
-            : `calc(450px * (${rouletteScale / 100} - 1) / 2)`,
+            ? `calc((450px * (${(rouletteScale / 100) * 1.35} - 1) / 2) - (180px * (1 - ${bottomGalleryScale / 100})))`
+            : `calc(450px * (${(rouletteScale / 100) * 1.35} - 1) / 2)`,
           transition: 'all 0.2s ease'
         }}>
           <Roulette

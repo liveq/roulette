@@ -11,6 +11,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  background: #4d2a6c;
 }
 
 /* 세로 모드일 때만 스크롤 허용 */

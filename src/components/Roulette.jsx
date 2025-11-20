@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import './Roulette.css'
 
 function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, isSpinning, spinDuration, useCustomProbability, customProbabilities, resultModalScale }) {
@@ -314,12 +315,12 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, is
           </svg>
         </div>
 
-        {/* 결과 표시 */}
-        {winner && (
+        {/* 결과 표시 - Portal로 document.body에 직접 렌더링 */}
+        {winner && createPortal(
           <div className="result-overlay" onClick={handleCloseModal}>
             <div
               className="result-card"
-              style={{ transform: `scale(${resultModalScale / 100})`, transition: 'transform 0.2s ease' }}
+              style={{ transform: `scale(${(resultModalScale / 100) * 0.7})`, transition: 'transform 0.2s ease' }}
             >
               <h2>🎉 축하합니다! 🎉</h2>
 
@@ -348,7 +349,8 @@ function Roulette({ prizes, slotCount, slotConfig, onSpin, onStop, onSpinEnd, is
                 닫기
               </button>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 
